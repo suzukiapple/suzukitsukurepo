@@ -1,0 +1,128 @@
+<p id="notice"><%= notice %></p>
+
+<div id="recipelist">
+  <div>
+    <input class="search" placeholder="Search" />
+  </div>
+  <div>
+    <p>Sort by
+      <button class="sort" data-sort="name">name</button>
+      <button class="sort" data-sort="user">user</button>
+      <button class="sort" data-sort="good">good</button>
+      <button class="sort" data-sort="last_cocked">last cocked</button>
+    </p>
+  </div>  
+  <ul class="list">
+    <% username=usernamearray %>
+    <% @recipes.each do |recipe| %>
+      <li>
+	<h3 class="name"><%= link_to recipe.name, recipe %></h3>
+        <p>
+	  <span class="icon">
+	  <% recipe.icons.each do |icon| %>
+            <%= icon.name %>
+          <% end %>
+	  </span>  
+	</p>
+  <p><span class="user"><%= username[recipe.user] %></span>   <span class="glyphicon glyphicon-thumbs-up"></span><span class="good"><%= recipe.good %></span></p>
+	<p>Last cocked:<span class="last_cocked"><%= recipe.last_cocked %></span></p>
+      </li>
+    <% end %>
+  </ul>
+
+</div>
+
+
+<%= link_to 'New Recipe', new_recipe_path %>
+
+<style>
+.list {
+  margin:0;
+  padding:5px 0 0;
+}
+.list > li {
+  display:block;
+  background-color: #eee;
+  padding:4px;
+  margin:4px 0px;
+  box-shadow: inset 0 1px 0 #fff;
+}
+.list > li > h3 {
+  font-size:18px;
+  margin:4px 4px 8px 4px;
+}
+input {
+  width:100%;
+  border:solid 1px #ccc;
+  border-radius: 5px;
+  padding:5px 10px;
+  margin-bottom:10px
+}
+input:focus {
+  border-color:#aaa;
+}
+.sort {
+  padding:5px 10px;
+  border-radius: 6px;
+  border:none;
+  display:inline-block;
+  color:#fff;
+  text-decoration: none;
+  background-color: #28a8e0;
+  height:28px;
+}
+.sort:hover {
+  text-decoration: none;
+  background-color:#1b8aba;
+}
+.sort:focus {
+  outline:none;
+}
+.sort:after {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  content:"";
+  position: relative;
+  top:-10px;
+  right:-5px;
+  }
+  .sort.asc:after {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #fff;
+  content:"";
+  position: relative;
+  top:13px;
+  right:-5px;
+}
+.sort.desc:after {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid #fff;
+  content:"";
+  position: relative;
+  top:-10px;
+  right:-5px;
+}
+.glyphicon {
+  margin:0px 4px;
+}
+p{
+  margin: 0 0 3px;
+}
+</style>
+<script>
+(function(){
+    let userlist = new List('recipelist', {
+      valueNames: [ 'name', 'icon' , 'user' ,'good', 'last_cocked' ]
+    });
+}());
+</script>
+

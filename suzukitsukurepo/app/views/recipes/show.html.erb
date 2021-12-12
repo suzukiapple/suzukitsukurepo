@@ -1,0 +1,110 @@
+<script>
+  function loadhtml(htmlurl){
+    $('#htmliframe').attr('src', htmlurl);
+
+    $('#htmliframe').on('load',function(){
+      changeSizeOfIflame();
+    });
+
+    //iframeのサイズ変更
+    function changeSizeOfIflame(){
+      const $frame = $('#htmliframe');
+      const innerHeight = $frame.get(0).contentWindow.document.body.scrollHeight;
+      const innerWidth = $frame.get(0).contentWindow.document.body.scrollWidth;
+      const divwidth=$("#htmliframediv").width();
+      $frame.css('height', innerHeight + 'px');
+      $frame.css('width', divwidth + 'px');
+    }
+  }
+</script>
+  
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @recipe.name %>
+</p>
+
+<p>
+  <strong>Icon:</strong>
+  <% @recipe.icons.each do |icon| %>
+    <%= icon.name %>
+  <% end %>
+</p>
+
+<p>
+  <strong>User:</strong>
+  <%= usernamearray[@recipe.user] %>
+</p>
+
+<p>
+  <strong>Good:</strong><span id="goodcount"><%= @recipe.good %></span>
+  <span id="goodrecipe" class="yubicursor glyphicon glyphicon-thumbs-up"></span>
+  <span id="badrecipe" class="yubicursor glyphicon glyphicon-thumbs-down"></span>
+</p>
+
+<p>
+  <strong>Last cocked:</strong>
+  <%= @recipe.last_cocked %>
+</p>
+
+<p>
+  <strong>Memo:</strong>
+  <%= @recipe.memo %>
+</p>
+
+<p>
+  <%= link_to 'Edit', edit_recipe_path(@recipe) %> |
+  <%= link_to 'Back', recipes_path %> |
+  <%= link_to 'Destroy', @recipe, method: :delete, data: { confirm: 'Are you sure you want to destroy?' } %>
+</p>
+
+<p>
+  <strong>Image:</strong><br>
+  <% @recipeimages.each do |recipeimage| %>
+    <p>
+      <%= recipeimage.created_at %><br>
+      <%= image_tag(galleryurl(recipeimage.image.url)) %>
+    </p>
+    <br>
+  <% end %>
+</p>
+
+<p>
+  <strong>Url:</strong>
+  <%= link_to @recipe.url, @recipe.url, {:target => "_blank"} %>
+</p>
+
+<div id="htmliframediv">
+<% if @recipe.url!="" then %>
+  <%= "<iframe id='htmliframe' src='' frameborder='0' height='100%' width='100%' scrolling='no'></iframe>".html_safe %>
+  <% htmlurl=@recipe.isloading ? nowloadingurl : "#{config.relative_url_root}#{@recipe.html.url}" %>
+  <%= "<script>(function(){loadhtml('#{htmlurl}');}());</script>".html_safe %>
+<% end %>
+</div>
+
+<script>
+(function(){
+  function updateRecipeCount(count,recipeid){
+    let updateurl="<%= api_updategoodcount_path %>.json";
+    let postdata={recipeid:recipeid,count:count};
+    $.post(updateurl, postdata, function( data ) {
+      $("#goodcount").html(data["good"]);
+    });
+  }
+
+  const recipeid=<%= @recipe.id %>;
+  $("#goodrecipe").on('click', function(e) {
+    updateRecipeCount(1,recipeid);
+  });
+  $("#badrecipe").on('click', function(e) {
+    updateRecipeCount(-1,recipeid);
+  });    
+})();
+</script>
+<style>
+img, #htmliframediv{
+  width:100%;
+}
+</style>
+

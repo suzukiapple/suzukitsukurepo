@@ -1,0 +1,78 @@
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets, or any plugin's
+ * vendor/assets/stylesheets directory can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the bottom of the
+ * compiled file so the styles you add here take precedence over styles defined in any other CSS/SCSS
+ * files in this directory. Styles in this file should be added after the last require_* statement.
+ * It is generally better to create a new file per style scope.
+ *
+ *= require_tree .
+ *= require_self
+ */
+
+
+body{
+    padding-top:20px;
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
+.navbar-inner{
+    position: absolute;
+    margin: auto;
+    top:0;
+    bottom:0;
+}
+
+.container{
+    width:100%;
+}
+
+.navbar-inner > .container{
+    height: 100%;
+    position: relative;
+    margin: auto;
+    top:0;
+    bottom:0;
+    
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center; /* 縦方向中央揃え（Safari用） */
+    align-items: center; /* 縦方向中央揃え */
+    /*-webkit-justify-content: center; /* 横方向中央揃え（Safari用） */
+    /*justify-content: center; /* 横方向中央揃え */
+}
+.navbar-inner > .container > a{
+    margin:auto 10px;
+}
+
+.navtitle{
+    font-size: 16pt;
+}
+
+a.navtitle:link { color: #B2B2B2; }
+a.navtitle:visited { color: #B2B2B2; }
+a.navtitle:hover { color: #B2B2B2; }
+a.navtitle:active { color: #B2B2B2; }
+
+
+
+/* for suzukitukurepo */
+
+.yubicursor {
+  cursor : pointer;
+}
+
+
+
+
+/* 並び替えのパネルグループ */
+.panel-group-order{
+    width: 75%;
+}
+
+

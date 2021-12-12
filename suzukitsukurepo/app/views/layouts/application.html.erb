@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, minimum-scale=1, maximum-scale=1">
+    <title>SuzukiTsukurepo</title>
+
+    <style>
+      body {
+      padding-top: 60px;
+      /* 60px to make the container go all the way
+      to the bottom of the topbar */
+      }
+    </style>
+	
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+     <link rel="apple-touch-icon" href="favicon-ios.png">
+  </head>
+
+  <body>
+    
+    <div class="navbar navbar-fixed-top navbar-inverse">
+      <div class="navbar-inner">
+        <div class="container">
+	  <%= link_to 'SuzukiTsukurepo', root_path, { :class => "navtitle" }  %>
+	  
+          <span class="hum_icon" ontouchstart="" >≡</span>
+          <nav ontouchstart="" class="hum_menu">
+            <ul>
+	      <li><%= link_to "Index", root_path %></a></li>
+              <li><%= link_to "Gallery", recipes_gallery_path %></a></li>
+              <li><%= link_to "New Recipe", new_recipe_path %></a></li>
+              <li><%= link_to "Change Order", orders_path %></a></li>
+              <li><%= link_to "Manage Icons", icons_path %></a></li>
+            </ul>
+          </nav>
+	  
+	</div>
+      </div>
+    </div>
+    
+    <div class="container">
+      <%= yield %>
+    </div>
+    
+  </body>
+</html>

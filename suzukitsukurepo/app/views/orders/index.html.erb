@@ -1,0 +1,38 @@
+<script type="text/javascript">
+  $(function() {
+     $(".sortable").sortable();
+     $(".sortable").disableSelection();
+     $("#submit").click(function() {
+       const result = $(".sortable").sortable("toArray");
+       $("#orderparams").val(result);
+        $("form").submit();
+     });
+  });
+</script>
+  
+<p id="notice"><%= notice %></p>
+
+<h1>Order</h1>
+  
+<section>
+  <div class="panel-group panel-group-order sortable" id="accordion">  
+    <% @recipes.each_with_index do |recipe,i| %>
+    <div id="<%= recipe.id %>" class="panel panel-default">
+      <div class="panel-heading">
+        <h4 class="panel-title accordion-toggle">
+          <a data-toggle="collapse" data-parent="#accordion" href="#collapse<%= i %>" class="collapsed"><%= recipe.name %></a>
+        </h4>
+      </div>
+    </div>
+    <% end %>
+  </div>
+  
+  <div>
+    <%= form_tag(orders_path, method: :post) do %>
+    <%= hidden_field_tag :orderparams %>
+    <button id="submit" name="button">Change order</button>
+    <% end %>
+  </div>
+</section>
+
+

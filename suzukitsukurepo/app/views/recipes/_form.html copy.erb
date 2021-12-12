@@ -1,0 +1,219 @@
+<%= form_with(model: recipe, local: true, :html => {:id => "recipeform", :multipart => true}) do |form| %>
+  <% if recipe.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(recipe.errors.count, "error") %> prohibited this recipe from being saved:</h2>
+
+      <ul>
+      <% recipe.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+
+  <%= form.hidden_field :id %>
+  <%= form.hidden_field :isloading, :value => false %>
+  
+  <div class="field">
+    <%= form.label :name %>
+    <%= form.text_field :name %>
+  </div>
+
+  <div class="field">
+    <%= form.label :user %>
+    <%= form.select :user, usernamehash %>
+  </div>
+
+  <div class="field">
+    <%= form.label :memo %>
+    <%= form.text_area :memo %>
+  </div>
+
+  <div class="field">
+    <%= form.label :url %>
+    <%= form.text_field :url %>
+  </div>
+
+  <div class="field">
+    <%= form.label :good %>
+    <%= form.number_field :good %>
+  </div>
+
+  <div class="field">
+    <%= label_tag 'Image' %>
+    <%= file_field_tag 'recipeimage[imagetmp][]', id: 'imagefile1' %>
+    <canvas id="imagecanvas1" width="0" height="0"></canvas>
+    <div id="imagediv1"></div>
+    <span id="nextimagetag"></span>
+    <br>
+    <button id="addimage">Add Image</button>
+  </div>
+
+  <br>
+  <div class="actions" style="display:none">
+    <%= form.submit %>
+    <canvas id="canvas" width="0" height="0"></canvas>
+  </div>
+<% end %>
+
+<div id="mysubmitdiv">
+  <button id="mysubmit" class="btn btn-large btn-block btn-primary">Submit</button>
+</div>
+<br><br>
+
+<style>
+input,textarea {
+  width:100%;
+}
+</style>
+<script>
+(function(){
+  function addOnLoadEvent(imagecount){
+    document.getElementById('imagefile'+imagecount).onchange = function (e) {
+      loadImage(
+        e.target.files[0],
+        function (img) {
+          console.log(img);
+          document.getElementById(event.target.id.replace('imagefile','imagediv')).appendChild(img);
+        },
+        {maxWidth: 1000, maxHeight: 1000}
+      );
+    };
+  }
+  
+  let imagecount=1;
+  $("#addimage").on('click', function(e) {
+    e.preventDefault(false);
+    imagecount++;
+    $('<br><input type="file" name="recipeimage[imagetmp][]" id="imagefile'+imagecount+'"/><canvas id="imagecanvas'+imagecount+'" width="0" height="0"></canvas>').insertBefore("#nextimagetag");
+    addOnLoadEvent(imagecount);
+  });
+  
+  $("#mysubmit").on('click', function(e) {
+    e.preventDefault(false);
+    $("#mysubmitdiv").html('<button class="btn btn-large btn-block btn-successsecondary">Connecting...</button>');
+    const posturl=$("#recipeform").attr("action")+".json";
+    let postdata=new FormData($("#recipeform").get(0));
+    postdata.delete("recipeimage[imagetmp][]");
+    $.ajax({
+      url: posturl,
+      type: "post",
+      data: postdata,
+      processData: false,
+      contentType: false
+    }).done(function(data) {
+      $("#mysubmitdiv").html('<button class="btn btn-large btn-block btn-successsecondary">Sending Image(s)...</button>');
+      $("#recipe_id").val(data["id"]);
+      saveImage();
+    });
+
+    function saveImage(){
+      let hasimage=false;
+      $("input[type=file]").each(function(i, elem) {
+        if($(elem).val()!=""){
+          hasimage=true;
+          return;
+        }
+      });
+      if(hasimage){
+        const postdata=new FormData($("#recipeform").get(0));
+        const imagelength=$("input[name='recipeimage[imagetmp][]']").length;
+        let imagecount=0;
+        $("input[name='recipeimage[imagetmp][]']").each(function(i, elem) {
+          const file=$(elem).prop('files')[0];
+          //if($(elem).val()==""){
+          if (file==null || (file.type != 'image/jpeg' && file.type != 'image/png')) {
+            imagecount++;
+            if(imagecount<imagelength){
+                return;
+            }else{
+                sendData(postdata);
+            }
+          }
+          const THUMBNAIL_WIDTH = 1000; // 画像リサイズ後の横の長さの最大値
+          const THUMBNAIL_HEIGHT = 1000; // 画像リサイズ後の縦の長さの最大値
+          let image = new Image();
+          let reader = new FileReader();
+          reader.onload = function(e) {
+            image.onload = function() {
+              let width, height;
+              if(image.width<THUMBNAIL_WIDTH || image.height<THUMBNAIL_HEIGHT){
+                width = image.width;
+                height = image.height;
+              }else if(image.width > image.height){
+                // 横長の画像は横のサイズを指定値にあわせる
+                const ratio = image.height/image.width;
+                width = THUMBNAIL_WIDTH;
+                height = THUMBNAIL_WIDTH * ratio;
+              } else {
+                // 縦長の画像は縦のサイズを指定値にあわせる
+                const ratio = image.width/image.height;
+                width = THUMBNAIL_HEIGHT * ratio;
+                height = THUMBNAIL_HEIGHT;
+              }
+              // サムネ描画用canvasのサイズを上で算出した値に変更
+              let canvas = $('#canvas')
+                           .attr('width', width)
+                           .attr('height', height);
+              let ctx = canvas[0].getContext('2d');
+              // canvasに既に描画されている画像をクリア
+              ctx.clearRect(0,0,width,height);
+              // canvasにサムネイルを描画
+              ctx.drawImage(image,0,0,image.width,image.height,0,0,width,height);
+
+              // canvasからbase64画像データを取得
+              let base64 = canvas.get(0).toDataURL('image/jpeg');
+              // base64からBlobデータを作成
+              let barr, bin, i, len;
+              bin = atob(base64.split('base64,')[1]);
+              len = bin.length;
+              barr = new Uint8Array(len);
+              i = 0;
+              while (i < len) {
+                barr[i] = bin.charCodeAt(i);
+                i++;
+              }
+              let blob = new Blob([barr], {type: 'image/jpeg'});
+              postdata.append('recipeimage[image][]', blob);
+              console.log(blob);
+              imagecount++;
+              if(imagecount<imagelength){
+              }else{
+                sendData(postdata);
+              }
+            }
+            image.src = e.target.result;
+          }
+          reader.readAsDataURL(file);
+        });
+        postdata.delete('recipeimage[imagetmp][]');
+      }else{
+        moveToShow();
+      }
+    }
+    
+    function sendData(postdata){
+      const saveurl="<%= api_saverecipeimage_path %>.json";
+      $.ajax({
+        url: saveurl,
+        type: "post",
+        data: postdata,
+        processData: false,
+        contentType: false
+      }).done(function(data) {
+        moveToShow();
+      });
+    }
+    
+    function moveToShow(){
+      const showurl="<%= recipes_path %>/"+$("#recipe_id").val();
+      location.href=showurl;
+    }
+  });
+
+  $("#mysubmit").html($("input[type=submit]").val());
+})();
+</script>
+
+

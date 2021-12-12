@@ -1,0 +1,15 @@
+<p id="notice"><%= notice %></p>
+
+<div id="recipegallery">
+  <% @recipeimages.each do |recipeimage| %>
+    <%= link_to image_tag(thumburl(recipeimage.image.url)), { :controller => :recipes, :action => :show, :id => recipeimage.recipe.id }, {}  %>
+  <% end %>
+</div>
+
+<style>
+img {
+  width:49%;
+}
+</style>
+
+
